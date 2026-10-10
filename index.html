@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <title>SpyBot</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #0c0f17;
+      color: #f4f6ff;
+      font-family: Arial, sans-serif;
+    }
+    header { padding: 24px 18px 12px; }
+    header h1 { margin: 0; font-size: 27px; }
+    header p { color: #929bb0; margin-bottom: 0; }
+    .tabs {
+      display: flex;
+      gap: 7px;
+      padding: 12px;
+      position: sticky;
+      top: 0;
+      background: #0c0f17;
+    }
+    .tabs button {
+      flex: 1;
+      border: 1px solid #282e40;
+      border-radius: 12px;
+      padding: 12px 4px;
+      background: #171c29;
+      color: #b9c1d5;
+      font-size: 13px;
+    }
+    .tabs button.active {
+      background: #6658df;
+      color: white;
+      border-color: #6658df;
+    }
+    input {
+      width: calc(100% - 24px);
+      margin: 4px 12px 14px;
+      padding: 14px;
+      border: 1px solid #282e40;
+      border-radius: 12px;
+      background: #171c29;
+      color: white;
+      font-size: 15px;
+    }
+    #content { padding: 0 12px 24px; }
+    .item {
+      background: #171c29;
+      border: 1px solid #282e40;
+      border-radius: 14px;
+      padding: 15px;
+      margin-bottom: 10px;
+      overflow-wrap: anywhere;
+    }
+    .item h3 { margin: 0 0 8px; font-size: 15px; }
+    .item p { color: #c4cad8; margin: 0 0 9px; }
+    .meta { color: #8791a8; font-size: 12px; }
+    .empty {
+      text-align: center;
+      padding: 45px 18px;
+      color: #929bb0;
+    }
+    .tag {
+      color: #aaa0ff;
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>◈ SpyBot</h1>
+    <p>Твой архив сообщений и медиа</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="active" data-tab="messages">Сообщения</button>
+    <button data-tab="photos">Фото</button>
+    <button data-tab="videos">Видео</button>
+  </nav>
+
+  <input id="search" placeholder="⌕ Поиск по архиву...">
+  <main id="content"></main>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    tg?.ready();
+    tg?.expand();
+
+    // Демонстрационные данные. Замени их
+    // реальными записями после подключения сервера.
+    const archive = [
+      {
+        type: "messages",
+        title: "Тестовая запись",
+        text: "Здесь будут отображаться сохранённые сообщения.",
+        date: "Пример"
+      },
+      {
+        type: "photos",
+        title: "Пример фотографии",
+        text: "Здесь будут отображаться сохранённые фото.",
+        date: "Пример"
+      },
+      {
+        type: "videos",
+        title: "Пример видео",
+        text: "Здесь будут отображаться сохранённые видео.",
+        date: "Пример"
+      }
+    ];
+
+    let currentTab = "messages";
+
+    function render() {
+      const query = document
+        .getElementById("search").value.toLowerCase();
+
+      const items = archive.filter(item =>
+        item.type === currentTab &&
+        (item.title + " " + item.text)
+          .toLowerCase().includes(query)
+      );
+
+      const content = document.getElementById("content");
+
+      if (!items.length) {
+        content.innerHTML =
+          '<div class="empty">Пока записей нет</div>';
+        return;
+      }
+
+      content.replaceChildren();
+
+      items.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "item";
+
+        const tag = document.createElement("div");
+        tag.className = "tag";
+        tag.textContent = "SPYBOT ARCHIVE";
+
+        const title = document.createElement("h3");
+        title.textContent = item.title;
+
+        const text = document.createElement("p");
+        text.textContent = item.text;
+
+        const date = document.createElement("div");
+        date.className = "meta";
+        date.textContent = item.date;
+
+        card.append(tag, title, text, date);
+        content.append(card);
+      });
+    }
+
+    document.querySelectorAll(".tabs button")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          currentTab = button.dataset.tab;
+
+          document.querySelectorAll(".tabs button")
+            .forEach(b =>
+              b.classList.toggle("active", b === button)
+            );
+
+          render();
+        });
+      });
+
+    document.getElementById("search")
+      .addEventListener("input", render);
+
+    render();
+  </script>
+</body>
+  </html>
+  
